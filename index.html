@@ -360,6 +360,8 @@
         window.passwordentry = document.querySelector('.uac-input');
         const uacinput = document.getElementById("uac-input")
 
+        uacinput.focus()
+
         new QWebChannel(qt.webChannelTransport, function(channel) {
             bridge = channel.objects.bridge;
         });
