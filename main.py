@@ -67,7 +67,6 @@ class Bridge(QtCore.QObject):
     @QtCore.pyqtSlot()
     def on_no(self):
         self.app.quit()
-        sys.exit()
 
 def get_current_wallpaper() -> str|None:
     SPI_GETDESKWALLPAPER = 0x0073
@@ -139,8 +138,9 @@ def main():
 
     window.showFullScreen()
     try:os.remove(BACKGROUND_PATH)
-    except:...
-    sys.exit(app.exec_())
+    except:pass
+    exit_code = app.exec_()
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
