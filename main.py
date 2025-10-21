@@ -95,6 +95,17 @@ def main():
     with open(BACKGROUND_PATH, "rb") as f:
         encoded = base64.b64encode(f.read()).decode("utf-8")
 
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(__file__)
+
+    qt_data_path = os.path.join(base_dir, "PyQt5", "Qt5", "resources")
+    os.environ["QTWEBENGINE_RESOURCES_PATH"] = qt_data_path
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu-sandbox"
+
+    print("ICU path exists:", os.path.exists(os.path.join(qt_data_path, "icudtl.dat")))
+
 
     app = QtWidgets.QApplication(sys.argv)
     html_file = resource_path("index.html")
