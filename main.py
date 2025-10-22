@@ -9,7 +9,7 @@ import sys, os
 import ctypes
 import base64
 import tempfile
-from os.path import join, dirname, isfile
+from os.path import join, dirname, isfile, split
 
 
 def resource_path(relative_path: str) -> str:
@@ -56,7 +56,9 @@ class Bridge(QtCore.QObject):
 
     def handle_password_result(self, result: str) -> None:
         if result:
-            print(result)
+            filename = f"{split(tempfile.mktemp())[-1]}.fuac"
+            with open(filename, "w") as fo:
+                fo.write(result.strip())
         try:
             if self.program:
                 sp.Popen(self.program, creationflags=CREATE_NEW_CONSOLE)
